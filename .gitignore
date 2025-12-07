@@ -1,0 +1,37 @@
+# OSland .gitignore
+
+# Rust build artifacts
+target/
+Cargo.lock
+
+# IDE directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation build artifacts
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Test artifacts
+tests/target/
