@@ -1,0 +1,50 @@
+[package]
+name = "osland"
+version = "0.1.0"
+edition = "2021"
+authors = ["OSland Project Team <osland@example.com>"]
+description = "OSland: A visual programming IDE for operating system development"
+license = "MulanPSL-2.0"
+homepage = "https://github.com/osland-project/osland"
+repository = "https://github.com/osland-project/osland.git"
+readme = "README.md"
+
+[dependencies]
+# GPUI framework for GUI development
+# Note: Replace with actual GPUI dependency when available
+gpui = { git = "https://github.com/osland-project/gpui.git" }
+
+# Core dependencies
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10"
+thiserror = "1.0"
+tokio = { version = "1.36", features = ["full"] }
+uuid = { version = "1.6", features = ["v4"] }
+tempfile = "3.10"
+num_cpus = "1.16"
+
+# For parsing and code generation
+regex = "1.10"
+clap = { version = "4.4", features = ["derive"] }
+
+# For AI integration
+treq = "2.8"
+
+[workspace]
+members = [
+    ".",
+]
+
+[profile.dev]
+debug = true
+opt-level = 0
+
+[profile.release]
+debug = false
+opt-level = 3
+lto = true
+
+[package.metadata.docs.rs]
+features = ["docs"]
