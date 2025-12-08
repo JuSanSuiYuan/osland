@@ -8,6 +8,12 @@ use crate::component_manager::{component::ComponentLibrary, visual_node::NodeCan
 use crate::core::architecture::KernelArchitecture;
 use crate::core::config::AppConfig;
 use super::canvas::CanvasWidget;
+use super::dashboard_integration::DashboardIntegration;
+use super::unified_resource_panel::UnifiedResourcePanel;
+use super::time_travel_panel::TimeTravelPanel;
+use super::command_line_panel::CommandLinePanel;
+use super::tile_designer_panel::TileDesignerPanel;
+use crate::dbos_integration::UnifiedResourceManager;
 
 /// Main window state
 pub struct MainWindowState {
@@ -27,12 +33,39 @@ pub struct MainWindow {
     toolbar: Toolbar,
     menu_bar: MenuBar,
     status_bar: Label,
+    // Add dashboard integration
+    dashboard_integration: DashboardIntegration,
+    // Add unified resource panel
+    unified_resource_panel: UnifiedResourcePanel,
+    // Add time travel panel
+    time_travel_panel: TimeTravelPanel,
+    // Add command line panel
+    command_line_panel: CommandLinePanel,
+    // Add tile designer panel
+    tile_designer_panel: TileDesignerPanel,
 }
 
 impl MainWindow {
     /// Create a new main window
     pub fn new(config: AppConfig, component_library: Arc<ComponentLibrary>, architecture: KernelArchitecture) -> Self {
         let canvas_widget = CanvasWidget::new(component_library.clone(), architecture.clone());
+        
+        // Create unified resource manager
+        let dbos_config = crate::dbos_integration::DbosConfig::default();
+        let agfs_config = crate::agfs_integration::AgfsConfig::default();
+        let unified_resource_manager = Arc::new(UnifiedResourceManager::new(dbos_config, agfs_config));
+        
+        // Get time travel engine from DBOS system
+        let time_travel_engine = unified_resource_manager.get_dbos_system().get_time_travel_engine();
+        
+        // Get command interface from AGFS system
+        let command_interface = unified_resource_manager.get_agfs_system().get_command_interface();
+        
+        // Create tile designer
+        let tile_designer = TileDesignerPanel::new(
+            Arc::new(crate::tile_engine::tile_designer::TileDesigner::new("Main Design".to_string())),
+            Arc::new(std::sync::RwLock::new(crate::tile_engine::tile_library::TileLibrary::create_standard_library()))
+        );
         
         Self {
             state: MainWindowState {
@@ -48,6 +81,16 @@ impl MainWindow {
             toolbar: Toolbar::new(),
             menu_bar: MenuBar::new(),
             status_bar: Label::new("Ready"),
+            // Add dashboard integration
+            dashboard_integration: DashboardIntegration::new(),
+            // Add unified resource panel
+            unified_resource_panel: UnifiedResourcePanel::new(unified_resource_manager),
+            // Add time travel panel
+            time_travel_panel: TimeTravelPanel::new(time_travel_engine),
+            // Add command line panel
+            command_line_panel: CommandLinePanel::new(command_interface),
+            // Add tile designer panel
+            tile_designer_panel: tile_designer,
         }
     }
     
@@ -116,11 +159,27 @@ impl MainWindow {
         view_menu.add_item("Zoom Out", || {});
         view_menu.add_item("Reset Zoom", || {});
         
+        // Dashboard menu
+        let dashboard_menu = self.menu_bar.add_menu("Dashboard");
+        dashboard_menu.add_item("Show Dashboard", || {
+            self.dashboard_integration.show_dashboard();
+        });
+        dashboard_menu.add_item("Project Manager", || {
+            self.dashboard_integration.show_project_manager();
+        });
+        dashboard_menu.add_item("Component Monitor", || {
+            self.dashboard_integration.show_component_monitor();
+        });
+        dashboard_menu.add_item("Global Search", || {
+            self.dashboard_integration.show_search_system();
+        });
+        
         // Tools menu
         let tools_menu = self.menu_bar.add_menu("Tools");
         tools_menu.add_item("Build OS Image", || {});
         tools_menu.add_item("Extract Kernel Components", || {});
         tools_menu.add_item("Component Manager", || {});
+        tools_menu.add_item("Tile Designer", || {});
         tools_menu.add_item("Settings", || {});
         
         // Help menu
@@ -172,6 +231,10 @@ impl MainWindow {
         self.toolbar.add_separator();
         self.toolbar.add_button("Build", || {});
         self.toolbar.add_button("Run", || {});
+        
+        // Tile operations
+        self.toolbar.add_separator();
+        self.toolbar.add_button("Tile Designer", || {});
     }
     
     /// Initialize component panel
@@ -308,6 +371,10 @@ impl Widget for MainWindow {
         self.component_panel.paint(cx);
         self.property_panel.paint(cx);
         self.status_bar.paint(cx);
+        // Paint dashboard integration
+        self.dashboard_integration.paint(cx);
+        // Paint tile designer panel
+        // self.tile_designer_panel.paint(cx); // TODO: Implement painting for tile designer
     }
     
     fn handle_event(&mut self, event: &gpui::Event, cx: &mut EventContext) {
@@ -317,6 +384,8 @@ impl Widget for MainWindow {
         self.canvas_widget.handle_event(event, cx);
         self.component_panel.handle_event(event, cx);
         self.property_panel.handle_event(event, cx);
+        // Handle dashboard integration events
+        self.dashboard_integration.handle_event(event, cx);
         
         match event {
             gpui::Event::MouseDown(mouse_event) => {

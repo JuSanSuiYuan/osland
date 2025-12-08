@@ -6,12 +6,14 @@ pub mod component;
 pub mod visual_node;
 pub mod property_mapper;
 pub mod version_manager;
+pub mod cuda_components;
 
 // Re-export core components
 pub use component::*;
 pub use visual_node::*;
 pub use property_mapper::*;
 pub use version_manager::*;
+pub use cuda_components::{create_cuda_component_library, extend_with_cuda_components};
 
 // Component Manager error types
 #[derive(thiserror::Error, Debug)]

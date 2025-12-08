@@ -7,6 +7,11 @@ pub mod component_panel;
 pub mod property_panel;
 pub mod canvas;
 pub mod toolbar;
+pub mod dashboard_integration;
+pub mod unified_resource_panel;
+pub mod time_travel_panel;
+pub mod command_line_panel;
+pub mod tile_designer_panel;
 
 // Export UI components
 pub use canvas::{CanvasWidget, CanvasTool};
@@ -15,7 +20,10 @@ pub use main_window::MainWindow;
 pub use component_panel::ComponentPanel;
 pub use toolbar::Toolbar;
 pub use property_panel::PropertyPanel;
-pub use status_bar::StatusBar;
+pub use unified_resource_panel::UnifiedResourcePanel;
+pub use time_travel_panel::TimeTravelPanel;
+pub use command_line_panel::CommandLinePanel;
+pub use tile_designer_panel::TileDesignerPanel;
 
 // Run the OSland IDE
 pub fn run_ide() {

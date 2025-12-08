@@ -2,6 +2,9 @@
 // Copyright (c) 2025 OSland Project Team
 // SPDX-License-Identifier: MulanPSL-2.0
 
+//! OSland is a visual programming IDE for operating system development.
+//! This module contains the main entry point for the application.
+
 mod core;
 mod ui;
 mod build_engine;
@@ -11,9 +14,16 @@ mod runtime;
 mod ai_assistant;
 mod mcp;
 mod i18n;
+mod dashboard;
+mod dbos_integration;
+mod agfs_integration;
+mod tile_engine;
+mod collaboration;
 
 use std::env;
-use log::{info, debug};
+use std::error::Error;
+use log::{info, debug, error, LevelFilter};
+use log::ParseLevelFilterError;
 use clap::{Parser, Subcommand};
 
 use crate::i18n::{Language, translate, translate_fmt};
@@ -58,9 +68,17 @@ enum Commands {
     },
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     // Initialize logging
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    let log_level = if let Ok(rust_log) = env::var("RUST_LOG") {
+        rust_log.parse::<LevelFilter>().unwrap_or(LevelFilter::Info)
+    } else {
+        LevelFilter::Info
+    };
+    
+    env_logger::Builder::new()
+        .filter_level(log_level)
+        .init()?;
 
     // Parse command line arguments
     let args = Args::parse();
@@ -68,7 +86,10 @@ fn main() {
     // Set log level if debug flag is present
     if args.debug {
         env::set_var("RUST_LOG", "debug");
-        env_logger::init();
+        // Re-initialize logger with debug level
+        env_logger::Builder::new()
+            .filter_level(LevelFilter::Debug)
+            .init();
     }
 
     // Set up language
@@ -85,35 +106,23 @@ fn main() {
 
     // Handle commands
     match args.command {
-        Some(Commands::Run) => {
+        Some(Commands::Run) | None => {
             info!("{}", translate("cli.run", Some(language)));
-            match ui::run_ide() {
-                Ok(_) => info!("{}", translate("status.ide_started", Some(language))),
-                Err(e) => error!("Failed to start OSland IDE: {:?}", e),
-            }
+            ui::run_ide()?;
+            info!("{}", translate("status.ide_started", Some(language)));
         }
         Some(Commands::Extract { source, output }) => {
             info!("{}", translate_fmt("status.extracting", Some(language), &[&source, &output]));
-            match kernel_extractor::extract_components(source, output) {
-                Ok(_) => info!("{}", translate("extract.success", Some(language))),
-                Err(e) => error!("{}: {:?}", translate("extract.failed", Some(language)), e),
-            }
+            kernel_extractor::extract_components(source, output)?;
+            info!("{}", translate("extract.success", Some(language)));
         }
         Some(Commands::Build { config, output }) => {
             info!("{}", translate_fmt("status.building", Some(language), &[&config, &output]));
-            match build_engine::build_image(config, output) {
-                Ok(_) => info!("{}", translate("build.success", Some(language))),
-                Err(e) => error!("{}: {:?}", translate("build.failed", Some(language)), e),
-            }
-        }
-        None => {
-            info!("{}", translate("status.no_command", Some(language)));
-            match ui::run_ide() {
-                Ok(_) => info!("{}", translate("status.ide_started", Some(language))),
-                Err(e) => error!("Failed to start OSland IDE: {:?}", e),
-            }
+            build_engine::build_image(config, output)?;
+            info!("{}", translate("build.success", Some(language)));
         }
     }
 
     info!("Exiting OSland");
+    Ok(())
 }

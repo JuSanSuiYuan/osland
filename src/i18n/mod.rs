@@ -225,6 +225,31 @@ impl Translations {
         
         self.add_translation("status.exiting", Language::Chinese, "正在退出OSland...");
         self.add_translation("status.exiting", Language::English, "Exiting OSland...");
+        
+        // Merge sort demo translations
+        self.add_translation("merge_sort.demo.description", Language::Chinese, "OSland归并排序可视化演示");
+        self.add_translation("merge_sort.demo.description", Language::English, "OSland Merge Sort Visualization Demo");
+        
+        self.add_translation("merge_sort.component.input_array", Language::Chinese, "输入数组");
+        self.add_translation("merge_sort.component.input_array", Language::English, "Input Array");
+        
+        self.add_translation("merge_sort.component.length_check", Language::Chinese, "长度检查");
+        self.add_translation("merge_sort.component.length_check", Language::English, "Length Check");
+        
+        self.add_translation("merge_sort.component.direct_return", Language::Chinese, "直接返回");
+        self.add_translation("merge_sort.component.direct_return", Language::English, "Direct Return");
+        
+        self.add_translation("merge_sort.component.split_array", Language::Chinese, "分割数组");
+        self.add_translation("merge_sort.component.split_array", Language::English, "Split Array");
+        
+        self.add_translation("merge_sort.component.merge_sort", Language::Chinese, "归并排序");
+        self.add_translation("merge_sort.component.merge_sort", Language::English, "Merge Sort");
+        
+        self.add_translation("merge_sort.component.merge_array", Language::Chinese, "合并数组");
+        self.add_translation("merge_sort.component.merge_array", Language::English, "Merge Array");
+        
+        self.add_translation("merge_sort.component.output_result", Language::Chinese, "输出结果");
+        self.add_translation("merge_sort.component.output_result", Language::English, "Output Result");
     }
 }
 

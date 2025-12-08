@@ -14,6 +14,8 @@ pub enum KernelArchitecture {
     Exokernel,
     /// Box kernel architecture (OSland's default)
     BoxKernel,
+    /// Partitioned kernel architecture (Parker-like multi-kernel)
+    PartitionedKernel,
 }
 
 impl Default for KernelArchitecture {
@@ -30,6 +32,7 @@ impl std::fmt::Display for KernelArchitecture {
             KernelArchitecture::Hybrid => write!(f, "hybrid"),
             KernelArchitecture::Exokernel => write!(f, "exokernel"),
             KernelArchitecture::BoxKernel => write!(f, "box"),
+            KernelArchitecture::PartitionedKernel => write!(f, "partitioned"),
         }
     }
 }

@@ -28,6 +28,30 @@ pub enum ComponentType {
     PlatformAbstraction,
     BoardSupport,
     
+    // CUDA components
+    CudaTile,
+    CudaTensor,
+    CudaPerformance,
+    
+    // Unit.land style components
+    UnitSource,         // Data source unit
+    UnitSink,           // Data sink unit
+    UnitTransform,      // Data transformation unit
+    UnitFilter,         // Data filtering unit
+    UnitMerge,          // Data merging unit
+    UnitSplit,          // Data splitting unit
+    UnitMap,            // Data mapping unit
+    UnitReduce,         // Data reduction unit
+    UnitCondition,      // Conditional branching unit
+    UnitLoop,           // Loop control unit
+    UnitRecursive,      // Recursive execution unit
+    UnitParallel,       // Parallel execution unit
+    UnitMonitor,        // Monitoring and debugging unit
+    UnitDelay,          // Delay and timing unit
+    UnitTrigger,        // Event trigger unit
+    UnitCache,          // Data caching unit
+    UnitBuffer,         // Data buffering unit
+    
     // Other components
     Custom(String),
 }
@@ -43,6 +67,11 @@ pub enum ComponentCategory {
     Security,
     Storage,
     Utilities,
+    Cuda,
+    UnitLand,          // Unit.land style components
+    DataProcessing,    // Data processing components
+    ControlFlow,       // Control flow components
+    Monitoring,        // Monitoring and debugging components
     Custom(String),
 }
 
@@ -192,6 +221,338 @@ impl ComponentLibrary {
                 ids.iter()
                     .filter_map(|id| self.components.get(id))
                     .collect()
+            })
+            .unwrap_or_default()
+    }
+    
+    /// Initialize Unit.land style component library
+    pub fn init_unit_land_library(&mut self) -> Result<(), ComponentManagerError> {
+        // Add common data types
+        let data_types = vec!["integer", "float", "string", "boolean", "array", "object", "stream"];
+        
+        // Add UnitSource component
+        let source_component = Component {
+            id: "unit_source".to_string(),
+            name: "Data Source".to_string(),
+            display_name: "Source Unit".to_string(),
+            component_type: ComponentType::UnitSource,
+            category: ComponentCategory::UnitLand,
+            version: "1.0.0".to_string(),
+            description: "Data source unit that generates input data".to_string(),
+            author: "OSland Project".to_string(),
+            source_url: Some("https://github.com/osland-project/osland".to_string()),
+            license: "MulanPSL-2.0".to_string(),
+            
+            properties: vec![
+                ComponentProperty {
+                    name: "data_type".to_string(),
+                    value: "integer".to_string(),
+                    property_type: "enum".to_string(),
+                    description: "Type of data to generate".to_string(),
+                    required: true,
+                    default_value: Some("integer".to_string()),
+                    valid_values: Some(data_types.clone()),
+                },
+                ComponentProperty {
+                    name: "initial_value".to_string(),
+                    value: "0".to_string(),
+                    property_type: "string".to_string(),
+                    description: "Initial value to generate".to_string(),
+                    required: false,
+                    default_value: Some("0".to_string()),
+                    valid_values: None,
+                },
+            ],
+            
+            ports: vec![
+                ComponentPort {
+                    name: "output".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Output,
+                    description: "Output data stream".to_string(),
+                },
+            ],
+            
+            dependencies: Vec::new(),
+            
+            supported_architectures: vec![
+                KernelArchitecture::Monolithic,
+                KernelArchitecture::Microkernel,
+                KernelArchitecture::Exokernel,
+                KernelArchitecture::Hybrid,
+            ].into_iter().collect(),
+            
+            supported_languages: vec!["rust".to_string(), "c".to_string()],
+            
+            implementation_files: Vec::new(),
+            build_commands: Vec::new(),
+            initialization_code: "".to_string(),
+        };
+        self.add_component(source_component)?;
+        
+        // Add UnitSink component
+        let sink_component = Component {
+            id: "unit_sink".to_string(),
+            name: "Data Sink".to_string(),
+            display_name: "Sink Unit".to_string(),
+            component_type: ComponentType::UnitSink,
+            category: ComponentCategory::UnitLand,
+            version: "1.0.0".to_string(),
+            description: "Data sink unit that consumes output data".to_string(),
+            author: "OSland Project".to_string(),
+            source_url: Some("https://github.com/osland-project/osland".to_string()),
+            license: "MulanPSL-2.0".to_string(),
+            
+            properties: vec![
+                ComponentProperty {
+                    name: "show_output".to_string(),
+                    value: "true".to_string(),
+                    property_type: "boolean".to_string(),
+                    description: "Show output data".to_string(),
+                    required: false,
+                    default_value: Some("true".to_string()),
+                    valid_values: None,
+                },
+            ],
+            
+            ports: vec![
+                ComponentPort {
+                    name: "input".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Input,
+                    description: "Input data stream".to_string(),
+                },
+            ],
+            
+            dependencies: Vec::new(),
+            
+            supported_architectures: vec![
+                KernelArchitecture::Monolithic,
+                KernelArchitecture::Microkernel,
+                KernelArchitecture::Exokernel,
+                KernelArchitecture::Hybrid,
+            ].into_iter().collect(),
+            
+            supported_languages: vec!["rust".to_string(), "c".to_string()],
+            
+            implementation_files: Vec::new(),
+            build_commands: Vec::new(),
+            initialization_code: "".to_string(),
+        };
+        self.add_component(sink_component)?;
+        
+        // Add UnitTransform component
+        let transform_component = Component {
+            id: "unit_transform".to_string(),
+            name: "Data Transform".to_string(),
+            display_name: "Transform Unit".to_string(),
+            component_type: ComponentType::UnitTransform,
+            category: ComponentCategory::UnitLand,
+            version: "1.0.0".to_string(),
+            description: "Data transformation unit".to_string(),
+            author: "OSland Project".to_string(),
+            source_url: Some("https://github.com/osland-project/osland".to_string()),
+            license: "MulanPSL-2.0".to_string(),
+            
+            properties: vec![
+                ComponentProperty {
+                    name: "operation".to_string(),
+                    value: "add".to_string(),
+                    property_type: "enum".to_string(),
+                    description: "Transformation operation".to_string(),
+                    required: true,
+                    default_value: Some("add".to_string()),
+                    valid_values: Some(vec!["add", "subtract", "multiply", "divide", "square", "sqrt", "abs", "negate"]),
+                },
+                ComponentProperty {
+                    name: "value".to_string(),
+                    value: "1".to_string(),
+                    property_type: "integer".to_string(),
+                    description: "Value for operation".to_string(),
+                    required: false,
+                    default_value: Some("1".to_string()),
+                    valid_values: None,
+                },
+            ],
+            
+            ports: vec![
+                ComponentPort {
+                    name: "input".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Input,
+                    description: "Input data stream".to_string(),
+                },
+                ComponentPort {
+                    name: "output".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Output,
+                    description: "Output data stream".to_string(),
+                },
+            ],
+            
+            dependencies: Vec::new(),
+            
+            supported_architectures: vec![
+                KernelArchitecture::Monolithic,
+                KernelArchitecture::Microkernel,
+                KernelArchitecture::Exokernel,
+                KernelArchitecture::Hybrid,
+            ].into_iter().collect(),
+            
+            supported_languages: vec!["rust".to_string(), "c".to_string()],
+            
+            implementation_files: Vec::new(),
+            build_commands: Vec::new(),
+            initialization_code: "".to_string(),
+        };
+        self.add_component(transform_component)?;
+        
+        // Add UnitCondition component
+        let condition_component = Component {
+            id: "unit_condition".to_string(),
+            name: "Condition".to_string(),
+            display_name: "Condition Unit".to_string(),
+            component_type: ComponentType::UnitCondition,
+            category: ComponentCategory::UnitLand,
+            version: "1.0.0".to_string(),
+            description: "Conditional branching unit".to_string(),
+            author: "OSland Project".to_string(),
+            source_url: Some("https://github.com/osland-project/osland".to_string()),
+            license: "MulanPSL-2.0".to_string(),
+            
+            properties: vec![
+                ComponentProperty {
+                    name: "condition".to_string(),
+                    value: "greater_than".to_string(),
+                    property_type: "enum".to_string(),
+                    description: "Condition to evaluate".to_string(),
+                    required: true,
+                    default_value: Some("greater_than".to_string()),
+                    valid_values: Some(vec!["equal", "not_equal", "greater_than", "less_than", "greater_equal", "less_equal"]),
+                },
+                ComponentProperty {
+                    name: "threshold".to_string(),
+                    value: "10".to_string(),
+                    property_type: "integer".to_string(),
+                    description: "Threshold value for condition".to_string(),
+                    required: true,
+                    default_value: Some("10".to_string()),
+                    valid_values: None,
+                },
+            ],
+            
+            ports: vec![
+                ComponentPort {
+                    name: "input".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Input,
+                    description: "Input data stream".to_string(),
+                },
+                ComponentPort {
+                    name: "true_output".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Output,
+                    description: "Output when condition is true".to_string(),
+                },
+                ComponentPort {
+                    name: "false_output".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Output,
+                    description: "Output when condition is false".to_string(),
+                },
+            ],
+            
+            dependencies: Vec::new(),
+            
+            supported_architectures: vec![
+                KernelArchitecture::Monolithic,
+                KernelArchitecture::Microkernel,
+                KernelArchitecture::Exokernel,
+                KernelArchitecture::Hybrid,
+            ].into_iter().collect(),
+            
+            supported_languages: vec!["rust".to_string(), "c".to_string()],
+            
+            implementation_files: Vec::new(),
+            build_commands: Vec::new(),
+            initialization_code: "".to_string(),
+        };
+        self.add_component(condition_component)?;
+        
+        // Add UnitLoop component
+        let loop_component = Component {
+            id: "unit_loop".to_string(),
+            name: "Loop".to_string(),
+            display_name: "Loop Unit".to_string(),
+            component_type: ComponentType::UnitLoop,
+            category: ComponentCategory::UnitLand,
+            version: "1.0.0".to_string(),
+            description: "Loop control unit".to_string(),
+            author: "OSland Project".to_string(),
+            source_url: Some("https://github.com/osland-project/osland".to_string()),
+            license: "MulanPSL-2.0".to_string(),
+            
+            properties: vec![
+                ComponentProperty {
+                    name: "loop_type".to_string(),
+                    value: "for".to_string(),
+                    property_type: "enum".to_string(),
+                    description: "Type of loop".to_string(),
+                    required: true,
+                    default_value: Some("for".to_string()),
+                    valid_values: Some(vec!["for", "while", "do_while"]),
+                },
+                ComponentProperty {
+                    name: "iterations".to_string(),
+                    value: "10".to_string(),
+                    property_type: "integer".to_string(),
+                    description: "Number of iterations for for loop".to_string(),
+                    required: false,
+                    default_value: Some("10".to_string()),
+                    valid_values: None,
+                },
+            ],
+            
+            ports: vec![
+                ComponentPort {
+                    name: "input".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Input,
+                    description: "Input data stream".to_string(),
+                },
+                ComponentPort {
+                    name: "output".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Output,
+                    description: "Output data stream".to_string(),
+                },
+                ComponentPort {
+                    name: "loop_body".to_string(),
+                    port_type: "integer".to_string(),
+                    direction: PortDirection::Bidirectional,
+                    description: "Loop body connection".to_string(),
+                },
+            ],
+            
+            dependencies: Vec::new(),
+            
+            supported_architectures: vec![
+                KernelArchitecture::Monolithic,
+                KernelArchitecture::Microkernel,
+                KernelArchitecture::Exokernel,
+                KernelArchitecture::Hybrid,
+            ].into_iter().collect(),
+            
+            supported_languages: vec!["rust".to_string(), "c".to_string()],
+            
+            implementation_files: Vec::new(),
+            build_commands: Vec::new(),
+            initialization_code: "".to_string(),
+        };
+        self.add_component(loop_component)?;
+        
+        Ok(())
+    }
             })
             .unwrap_or_default()
     }

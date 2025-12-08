@@ -7,6 +7,7 @@ use crate::kernel_extractor::KernelComponent;
 use super::{HardwareAdapter, KernelAdapter};
 use super::hardware_adapters::{X86_64HardwareAdapter, Arm64HardwareAdapter};
 use super::kernel_adapters::{MonolithicAdapter, MicrokernelAdapter};
+use super::partitioned_kernel_adapter::PartitionedKernelAdapter;
 use std::fmt::Display;
 use std::sync::Arc;
 
@@ -107,6 +108,7 @@ impl DefaultArchitectureService {
             KernelArchitecture::Hybrid => Arc::new(MonolithicAdapter::new()), // Hybrid uses monolithic as base
             KernelArchitecture::Exokernel => Arc::new(MicrokernelAdapter::new()), // Exokernel uses microkernel as base
             KernelArchitecture::BoxKernel => Arc::new(MonolithicAdapter::new()), // Box kernel uses monolithic as base
+            KernelArchitecture::PartitionedKernel => Arc::new(PartitionedKernelAdapter::new()), // Partitioned kernel uses its own adapter
         };
         
         // Create hardware adapter based on target architecture
