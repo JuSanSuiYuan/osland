@@ -20,7 +20,7 @@ impl AppState {
         Self {
             config: config::AppConfig::default(),
             project: None,
-            current_architecture: architecture::KernelArchitecture::BoxKernel,
+            current_architecture: architecture::KernelArchitecture::Framekernel,
         }
     }
 }

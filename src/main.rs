@@ -9,6 +9,7 @@ mod core;
 mod ui;
 mod build_engine;
 mod kernel_extractor;
+mod kernel_visualization;
 mod component_manager;
 mod runtime;
 mod ai_assistant;

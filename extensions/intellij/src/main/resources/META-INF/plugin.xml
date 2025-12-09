@@ -1,0 +1,53 @@
+<idea-plugin>
+    <id>com.osland.plugin</id>
+    <name>OSland Plugin</name>
+    <version>1.0.0</version>
+    <vendor email="support@osland.com" url="https://osland.com">OSland Team</vendor>
+
+    <description><![CDATA[
+      OSland Plugin provides an embedded visual interface for OSland operations.
+      <br>
+      <em>Features:</em>
+      <ul>
+        <li>Component panel for OSland components</li>
+        <li>Visual canvas for designing OSland systems</li>
+        <li>Property panel for configuring components</li>
+        <li>Integration with OSland core functionality</li>
+      </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      <h2>Version 1.0.0</h2>
+      <ul>
+        <li>Initial release</li>
+        <li>Component panel</li>
+        <li>Visual canvas</li>
+        <li>Property panel</li>
+      </ul>
+    ]]></change-notes>
+
+    <!-- Plugin Dependencies -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <!-- Extension Points -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Tool Window -->
+        <toolWindow factoryClass="com.osland.plugin.OSlandToolWindowFactory" id="OSland" secondary="true" />
+
+        <!-- Action Group -->
+        <actionGroup id="OSlandActions" text="OSland" popup="true">
+            <add-to-group group-id="MainMenu" anchor="last" />
+            <action id="OSland.OpenToolWindow" class="com.osland.plugin.actions.OpenOSlandToolWindowAction" text="Open OSland" description="Open OSland Tool Window" />
+            <action id="OSland.SaveProject" class="com.osland.plugin.actions.SaveProjectAction" text="Save Project" description="Save OSland Project" />
+            <action id="OSland.LoadProject" class="com.osland.plugin.actions.LoadProjectAction" text="Load Project" description="Load OSland Project" />
+            <action id="OSland.RunProject" class="com.osland.plugin.actions.RunProjectAction" text="Run Project" description="Run OSland Project" />
+            <action id="OSland.BuildProject" class="com.osland.plugin.actions.BuildProjectAction" text="Build Project" description="Build OSland Project" />
+        </actionGroup>
+    </extensions>
+
+    <!-- Application Components -->
+    <application-components>
+        <component>com.osland.plugin.OSlandCommunicationService</component>
+    </application-components>
+</idea-plugin>

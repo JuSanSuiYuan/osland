@@ -107,7 +107,7 @@ impl DefaultArchitectureService {
             KernelArchitecture::Microkernel => Arc::new(MicrokernelAdapter::new()),
             KernelArchitecture::Hybrid => Arc::new(MonolithicAdapter::new()), // Hybrid uses monolithic as base
             KernelArchitecture::Exokernel => Arc::new(MicrokernelAdapter::new()), // Exokernel uses microkernel as base
-            KernelArchitecture::BoxKernel => Arc::new(MonolithicAdapter::new()), // Box kernel uses monolithic as base
+            KernelArchitecture::Framekernel => Arc::new(MonolithicAdapter::new()), // Frame kernel uses monolithic as base
             KernelArchitecture::PartitionedKernel => Arc::new(PartitionedKernelAdapter::new()), // Partitioned kernel uses its own adapter
         };
         
@@ -213,7 +213,7 @@ impl ArchitectureServiceFactory {
     /// Create a service with default configurations
     pub fn create_default_service() -> Result<Arc<dyn ArchitectureService>, String> {
         DefaultArchitectureService::new(
-            KernelArchitecture::BoxKernel,
+            KernelArchitecture::Framekernel,
             HardwareArchitecture::X86_64,
             Some(ArchitectureServiceConfig::default())
         ).map(|service| Arc::new(service) as Arc<dyn ArchitectureService>)

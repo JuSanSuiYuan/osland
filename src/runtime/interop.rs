@@ -19,6 +19,7 @@ pub enum ProgrammingLanguage {
     Python,
     Chim,
     Mojo,
+    V,
     Moonbit,
     Other(&'static str),
 }
@@ -36,6 +37,7 @@ impl ProgrammingLanguage {
             ProgrammingLanguage::Python => "python",
             ProgrammingLanguage::Chim => "chim",
             ProgrammingLanguage::Mojo => "mojo",
+            ProgrammingLanguage::V => "v",
             ProgrammingLanguage::Moonbit => "moonbit",
             ProgrammingLanguage::Other(s) => s,
         }
@@ -53,6 +55,7 @@ impl ProgrammingLanguage {
             "python" | "py" => Ok(ProgrammingLanguage::Python),
             "chim" => Ok(ProgrammingLanguage::Chim),
             "mojo" => Ok(ProgrammingLanguage::Mojo),
+            "v" => Ok(ProgrammingLanguage::V),
             "moonbit" => Ok(ProgrammingLanguage::Moonbit),
             _ => Ok(ProgrammingLanguage::Other(s)),
         }

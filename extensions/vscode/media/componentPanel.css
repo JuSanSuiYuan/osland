@@ -1,0 +1,110 @@
+/* Component Panel CSS for OSland VS Code extension */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    height: 100%;
+    overflow: hidden;
+}
+
+#component-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#category-tabs {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #ffffff;
+}
+
+.category-tab {
+    padding: 10px 15px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+    color: #666;
+    border-bottom: 2px solid transparent;
+}
+
+.category-tab:hover {
+    background-color: #f0f0f0;
+}
+
+.category-tab.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+    font-weight: bold;
+}
+
+#component-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.component-item {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    user-select: none;
+}
+
+.component-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.component-item.selected {
+    border: 2px solid #ffeb3b;
+    box-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+}
+
+.component-icon {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.component-name {
+    font-size: 11px;
+    text-align: center;
+    padding: 0 5px;
+    word-break: break-word;
+}
+
+/* Scrollbar styling */
+#component-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#component-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#component-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#component-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

@@ -312,6 +312,225 @@ impl TileLibrary {
         
         self.add_tile("Processing".to_string(), gpu_core)?;
         
+        // Triton Kernel tile
+        let mut triton_kernel = Tile::new(
+            "Triton Kernel".to_string(),
+            TileType::Processing,
+            "A Triton kernel for high-performance GPU computations".to_string()
+        );
+        triton_kernel.set_property("block_size".to_string(), "1024".to_string());
+        triton_kernel.set_property("num_warps".to_string(), "4".to_string());
+        triton_kernel.add_port(TilePort {
+            id: "input_tensor".to_string(),
+            name: "Input Tensor".to_string(),
+            port_type: PortType::Input,
+            data_type: "Tensor".to_string(),
+            description: "Input tensor for Triton kernel".to_string(),
+        });
+        triton_kernel.add_port(TilePort {
+            id: "output_tensor".to_string(),
+            name: "Output Tensor".to_string(),
+            port_type: PortType::Output,
+            data_type: "Tensor".to_string(),
+            description: "Output tensor from Triton kernel".to_string(),
+        });
+        triton_kernel.set_execution_code("// Triton kernel execution\noutput = triton_kernel(input)".to_string());
+        
+        self.add_tile("Processing".to_string(), triton_kernel)?;
+        
+        // Triton Tensor tile
+        let mut triton_tensor = Tile::new(
+            "Triton Tensor".to_string(),
+            TileType::Data,
+            "A tensor for use with Triton kernels".to_string()
+        );
+        triton_tensor.set_property("shape".to_string(), "[1024, 1024]".to_string());
+        triton_tensor.set_property("dtype".to_string(), "float32".to_string());
+        triton_tensor.add_port(TilePort {
+            id: "tensor_data".to_string(),
+            name: "Tensor Data".to_string(),
+            port_type: PortType::Bidirectional,
+            data_type: "TensorData".to_string(),
+            description: "Bidirectional port for tensor data".to_string(),
+        });
+        
+        self.add_tile("Data".to_string(), triton_tensor)?;
+
+        // Add CuTile Kernel tile for GPU processing
+        let mut cutile_kernel = Tile::new(
+            "CuTile Kernel".to_string(),
+            TileType::Processing,
+            "CUDA Tile kernel for GPU acceleration using tile-based programming".to_string()
+        );
+        cutile_kernel.set_property("block_size".to_string(), "128".to_string());
+        cutile_kernel.set_property("tile_dim".to_string(), "32".to_string());
+        cutile_kernel.add_port(TilePort {
+            id: "task_input".to_string(),
+            name: "Task Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "Task".to_string(),
+            description: "Input task data".to_string(),
+        });
+        cutile_kernel.add_port(TilePort {
+            id: "result_output".to_string(),
+            name: "Result Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "Result".to_string(),
+            description: "Output result".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), cutile_kernel)?;
+
+        // Add TVM Module tile for cross-platform acceleration
+        let mut tvm_module = Tile::new(
+            "TVM Module".to_string(),
+            TileType::Processing,
+            "TVM compiled module for high-performance cross-platform execution".to_string()
+        );
+        tvm_module.set_property("target".to_string(), "cuda".to_string());
+        tvm_module.set_property("opt_level".to_string(), "3".to_string());
+        tvm_module.add_port(TilePort {
+            id: "input_tensors".to_string(),
+            name: "Input Tensors".to_string(),
+            port_type: PortType::Input,
+            data_type: "Tensor".to_string(),
+            description: "Input tensors".to_string(),
+        });
+        tvm_module.add_port(TilePort {
+            id: "output_tensors".to_string(),
+            name: "Output Tensors".to_string(),
+            port_type: PortType::Output,
+            data_type: "Tensor".to_string(),
+            description: "Output tensors".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), tvm_module)?;
+
+        // Add Helion Function tile for PyTorch Helion acceleration
+        let mut helion_function = Tile::new(
+            "Helion Function".to_string(),
+            TileType::Processing,
+            "PyTorch Helion function for advanced GPU acceleration".to_string()
+        );
+        helion_function.set_property("parallelism".to_string(), "automatic".to_string());
+        helion_function.set_property("precision".to_string(), "float32".to_string());
+        helion_function.add_port(TilePort {
+            id: "function_input".to_string(),
+            name: "Function Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "Data".to_string(),
+            description: "Input data".to_string(),
+        });
+        helion_function.add_port(TilePort {
+            id: "function_output".to_string(),
+            name: "Function Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "Result".to_string(),
+            description: "Output result".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), helion_function)?;
+
+        // Add C# Function tile for .NET platform
+        let mut csharp_function = Tile::new(
+            "C# Function".to_string(),
+            TileType::Processing,
+            "C# function for .NET platform execution".to_string()
+        );
+        csharp_function.set_property("framework".to_string(), ".NET 8.0".to_string());
+        csharp_function.set_property("async".to_string(), "false".to_string());
+        csharp_function.add_port(TilePort {
+            id: "csharp_input".to_string(),
+            name: "C# Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "Object".to_string(),
+            description: "Input data for C# function".to_string(),
+        });
+        csharp_function.add_port(TilePort {
+            id: "csharp_output".to_string(),
+            name: "C# Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "Object".to_string(),
+            description: "Output result from C# function".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), csharp_function)?;
+
+        // Add C3 Function tile for C3 programming language
+        let mut c3_function = Tile::new(
+            "C3 Function".to_string(),
+            TileType::Processing,
+            "C3 function for C3 programming language execution".to_string()
+        );
+        c3_function.set_property("opt_level".to_string(), "2".to_string());
+        c3_function.set_property("unboxed".to_string(), "true".to_string());
+        c3_function.add_port(TilePort {
+            id: "c3_input".to_string(),
+            name: "C3 Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "Data".to_string(),
+            description: "Input data for C3 function".to_string(),
+        });
+        c3_function.add_port(TilePort {
+            id: "c3_output".to_string(),
+            name: "C3 Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "Data".to_string(),
+            description: "Output result from C3 function".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), c3_function)?;
+
+        // Add TypeScript Function tile for JavaScript/TypeScript platform
+        let mut typescript_function = Tile::new(
+            "TypeScript Function".to_string(),
+            TileType::Processing,
+            "TypeScript function for JavaScript/TypeScript platform execution".to_string()
+        );
+        typescript_function.set_property("es_version".to_string(), "ES2022".to_string());
+        typescript_function.set_property("strict_mode".to_string(), "true".to_string());
+        typescript_function.add_port(TilePort {
+            id: "ts_input".to_string(),
+            name: "TypeScript Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "any".to_string(),
+            description: "Input data for TypeScript function".to_string(),
+        });
+        typescript_function.add_port(TilePort {
+            id: "ts_output".to_string(),
+            name: "TypeScript Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "any".to_string(),
+            description: "Output result from TypeScript function".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), typescript_function)?;
+
+        // Add Mojo Function tile for Mojo programming language
+        let mut mojo_function = Tile::new(
+            "Mojo Function".to_string(),
+            TileType::Processing,
+            "Mojo function for Mojo programming language execution".to_string()
+        );
+        mojo_function.set_property("opt_level".to_string(), "3".to_string());
+        mojo_function.set_property("vectorize".to_string(), "true".to_string());
+        mojo_function.add_port(TilePort {
+            id: "mojo_input".to_string(),
+            name: "Mojo Input".to_string(),
+            port_type: PortType::Input,
+            data_type: "Data".to_string(),
+            description: "Input data for Mojo function".to_string(),
+        });
+        mojo_function.add_port(TilePort {
+            id: "mojo_output".to_string(),
+            name: "Mojo Output".to_string(),
+            port_type: PortType::Output,
+            data_type: "Data".to_string(),
+            description: "Output result from Mojo function".to_string(),
+        });
+        
+        self.add_tile("Processing".to_string(), mojo_function)?;
+        
         Ok(())
     }
     

@@ -8,6 +8,7 @@ pub mod moonbit;
 pub mod c_cpp;
 pub mod zig;
 pub mod rust;
+pub mod v;
 pub mod go;
 pub mod interop;
 

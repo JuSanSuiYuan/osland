@@ -17,6 +17,9 @@ enum CudaComponentType {
     CudaOperation,     // CUDA operation component
     CudaConfig,        // CUDA configuration component
     CudaPerformance,   // CUDA performance analysis component
+    TritonKernel,      // Triton kernel component
+    TritonTensor,      // Triton tensor component
+    TritonOperation,   // Triton operation component
 }
 
 /// CUDA operation types
@@ -98,6 +101,7 @@ fn create_cuda_tile_component() -> Component {
                 property_type: "bool".to_string(),
                 description: "Enable Tensor Core usage".to_string(),
                 required: false,
+
                 default_value: Some("true".to_string()),
                 valid_values: Some(vec!["true".to_string(), "false".to_string()]),
             },
@@ -169,6 +173,173 @@ fn create_cuda_tile_component() -> Component {
         initialization_code: "# CUDA Tile initialization code\n".to_string() +
             "import cuda_tile\n" +
             "import numpy as np\n",
+    }
+}
+
+/// Create a Triton kernel component for visualization
+fn create_triton_kernel_component() -> Component {
+    Component {
+        id: "triton_kernel".to_string(),
+        name: "triton_kernel".to_string(),
+        display_name: "Triton Kernel".to_string(),
+        component_type: ComponentType::Custom("TritonKernel".to_string()),
+        category: ComponentCategory::Utilities,
+        version: "1.0.0".to_string(),
+        description: "Triton kernel component for GPU acceleration".to_string(),
+        author: "OSland Team".to_string(),
+        source_url: Some("https://github.com/osland-project/osland".to_string()),
+        license: "MulanPSL-2.0".to_string(),
+        
+        properties: vec![
+            ComponentProperty {
+                name: "block_size".to_string(),
+                value: "128".to_string(),
+                property_type: "string".to_string(),
+                description: "Triton block size configuration".to_string(),
+                required: true,
+                default_value: Some("128".to_string()),
+                valid_values: Some(vec![
+                    "64".to_string(),
+                    "128".to_string(),
+                    "256".to_string(),
+                    "512".to_string(),
+                    "custom".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "operation_type".to_string(),
+                value: "GEMM".to_string(),
+                property_type: "string".to_string(),
+                description: "Type of Triton operation".to_string(),
+                required: true,
+                default_value: Some("GEMM".to_string()),
+                valid_values: Some(vec![
+                    "GEMM".to_string(),
+                    "Conv2D".to_string(),
+                    "Elementwise".to_string(),
+                    "Reduction".to_string(),
+                    "Activation".to_string(),
+                    "Softmax".to_string(),
+                    "LayerNorm".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "data_type".to_string(),
+                value: "float32".to_string(),
+                property_type: "string".to_string(),
+                description: "Data type for Triton operation".to_string(),
+                required: true,
+                default_value: Some("float32".to_string()),
+                valid_values: Some(vec![
+                    "float16".to_string(),
+                    "float32".to_string(),
+                    "float64".to_string(),
+                    "int8".to_string(),
+                    "int32".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "autotune".to_string(),
+                value: "true".to_string(),
+                property_type: "bool".to_string(),
+                description: "Enable Triton autotuning".to_string(),
+                required: false,
+                default_value: Some("true".to_string()),
+                valid_values: None,
+            },
+        ],
+        
+        ports: vec![
+            ComponentPort {
+                name: "input_tensor".to_string(),
+                direction: PortDirection::Input,
+                port_type: "tensor".to_string(),
+                description: "Input tensor for Triton kernel".to_string(),
+                required: true,
+            },
+            ComponentPort {
+                name: "output_tensor".to_string(),
+                direction: PortDirection::Output,
+                port_type: "tensor".to_string(),
+                description: "Output tensor from Triton kernel".to_string(),
+                required: true,
+            },
+        ],
+        
+        dependencies: vec![],
+        architecture: KernelArchitecture::X86_64,
+        
+        metadata: HashMap::new(),
+    }
+}
+
+/// Create a Triton tensor component for visualization
+fn create_triton_tensor_component() -> Component {
+    Component {
+        id: "triton_tensor".to_string(),
+        name: "triton_tensor".to_string(),
+        display_name: "Triton Tensor".to_string(),
+        component_type: ComponentType::Custom("TritonTensor".to_string()),
+        category: ComponentCategory::DataStructures,
+        version: "1.0.0".to_string(),
+        description: "Triton tensor component for data storage".to_string(),
+        author: "OSland Team".to_string(),
+        source_url: Some("https://github.com/osland-project/osland".to_string()),
+        license: "MulanPSL-2.0".to_string(),
+        
+        properties: vec![
+            ComponentProperty {
+                name: "shape".to_string(),
+                value: "(1024, 1024)".to_string(),
+                property_type: "string".to_string(),
+                description: "Tensor shape configuration".to_string(),
+                required: true,
+                default_value: Some("(1024, 1024)".to_string()),
+                valid_values: None,
+            },
+            ComponentProperty {
+                name: "data_type".to_string(),
+                value: "float32".to_string(),
+                property_type: "string".to_string(),
+                description: "Data type for tensor".to_string(),
+                required: true,
+                default_value: Some("float32".to_string()),
+                valid_values: Some(vec![
+                    "float16".to_string(),
+                    "float32".to_string(),
+                    "float64".to_string(),
+                    "int8".to_string(),
+                    "int32".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "layout".to_string(),
+                value: "row_major".to_string(),
+                property_type: "string".to_string(),
+                description: "Tensor memory layout".to_string(),
+                required: false,
+                default_value: Some("row_major".to_string()),
+                valid_values: Some(vec![
+                    "row_major".to_string(),
+                    "column_major".to_string(),
+                ]),
+            },
+        ],
+        
+        ports: vec![
+            ComponentPort {
+                name: "tensor_data".to_string(),
+                direction: PortDirection::Bidirectional,
+                port_type: "tensor".to_string(),
+                description: "Tensor data access port".to_string(),
+                required: true,
+            },
+        ],
+        
+        dependencies: vec![],
+        architecture: KernelArchitecture::X86_64,
+        
+        metadata: HashMap::new(),
     }
 }
 
@@ -397,6 +568,240 @@ pub fn create_cuda_component_library() -> ComponentLibrary {
     // Add CUDA Performance component
     library.add_component(create_cuda_performance_component()).expect("Failed to add CUDA Performance component");
     
+    // Add Triton components
+    library.add_component(create_triton_kernel_component()).expect("Failed to add Triton Kernel component");
+    library.add_component(create_triton_tensor_component()).expect("Failed to add Triton Tensor component");
+    
+    library
+}
+
+/// Create a CuTile component for CUDA Tile programming
+fn create_cutile_component() -> Component {
+    Component {
+        id: "cutile_component".to_string(),
+        name: "cutile_component".to_string(),
+        display_name: "CuTile Component".to_string(),
+        component_type: ComponentType::Custom("CuTileComponent".to_string()),
+        category: ComponentCategory::Utilities,
+        version: "1.0.0".to_string(),
+        description: "CuTile component for CUDA Tile programming model".to_string(),
+        author: "OSland Team".to_string(),
+        source_url: Some("https://github.com/osland-project/osland".to_string()),
+        license: "MulanPSL-2.0".to_string(),
+        
+        properties: vec![
+            ComponentProperty {
+                name: "tile_dim".to_string(),
+                value: "32".to_string(),
+                property_type: "string".to_string(),
+                description: "Tile dimension configuration".to_string(),
+                required: true,
+                default_value: Some("32".to_string()),
+                valid_values: Some(vec![
+                    "16".to_string(),
+                    "32".to_string(),
+                    "64".to_string(),
+                    "custom".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "block_size".to_string(),
+                value: "128".to_string(),
+                property_type: "string".to_string(),
+                description: "Block size configuration".to_string(),
+                required: true,
+                default_value: Some("128".to_string()),
+                valid_values: Some(vec![
+                    "64".to_string(),
+                    "128".to_string(),
+                    "256".to_string(),
+                    "custom".to_string(),
+                ]),
+            },
+        ],
+        
+        ports: vec![
+            ComponentPort {
+                name: "input_data".to_string(),
+                direction: PortDirection::Input,
+                port_type: "data".to_string(),
+                description: "Input data for CuTile processing".to_string(),
+                required: true,
+            },
+            ComponentPort {
+                name: "output_result".to_string(),
+                direction: PortDirection::Output,
+                port_type: "data".to_string(),
+                description: "Output result from CuTile processing".to_string(),
+                required: true,
+            },
+        ],
+        
+        dependencies: vec![],
+        architecture: KernelArchitecture::X86_64,
+        
+        metadata: HashMap::new(),
+    }
+}
+
+/// Create a TVM component for cross-platform acceleration
+fn create_tvm_component() -> Component {
+    Component {
+        id: "tvm_component".to_string(),
+        name: "tvm_component".to_string(),
+        display_name: "TVM Component".to_string(),
+        component_type: ComponentType::Custom("TVMComponent".to_string()),
+        category: ComponentCategory::Utilities,
+        version: "1.0.0".to_string(),
+        description: "TVM component for cross-platform acceleration".to_string(),
+        author: "OSland Team".to_string(),
+        source_url: Some("https://github.com/osland-project/osland".to_string()),
+        license: "MulanPSL-2.0".to_string(),
+        
+        properties: vec![
+            ComponentProperty {
+                name: "target".to_string(),
+                value: "cuda".to_string(),
+                property_type: "string".to_string(),
+                description: "TVM target platform".to_string(),
+                required: true,
+                default_value: Some("cuda".to_string()),
+                valid_values: Some(vec![
+                    "cuda".to_string(),
+                    "rocm".to_string(),
+                    "cpu".to_string(),
+                    "metal".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "opt_level".to_string(),
+                value: "3".to_string(),
+                property_type: "string".to_string(),
+                description: "TVM optimization level".to_string(),
+                required: true,
+                default_value: Some("3".to_string()),
+                valid_values: Some(vec![
+                    "0".to_string(),
+                    "1".to_string(),
+                    "2".to_string(),
+                    "3".to_string(),
+                    "4".to_string(),
+                ]),
+            },
+        ],
+        
+        ports: vec![
+            ComponentPort {
+                name: "tvm_module".to_string(),
+                direction: PortDirection::Input,
+                port_type: "module".to_string(),
+                description: "TVM module input".to_string(),
+                required: true,
+            },
+            ComponentPort {
+                name: "exec_output".to_string(),
+                direction: PortDirection::Output,
+                port_type: "data".to_string(),
+                description: "Execution output".to_string(),
+                required: true,
+            },
+        ],
+        
+        dependencies: vec![],
+        architecture: KernelArchitecture::X86_64,
+        
+        metadata: HashMap::new(),
+    }
+}
+
+/// Create a Helion component for PyTorch Helion acceleration
+fn create_helion_component() -> Component {
+    Component {
+        id: "helion_component".to_string(),
+        name: "helion_component".to_string(),
+        display_name: "Helion Component".to_string(),
+        component_type: ComponentType::Custom("HelionComponent".to_string()),
+        category: ComponentCategory::Utilities,
+        version: "1.0.0".to_string(),
+        description: "Helion component for PyTorch Helion acceleration".to_string(),
+        author: "OSland Team".to_string(),
+        source_url: Some("https://github.com/osland-project/osland".to_string()),
+        license: "MulanPSL-2.0".to_string(),
+        
+        properties: vec![
+            ComponentProperty {
+                name: "parallelism".to_string(),
+                value: "automatic".to_string(),
+                property_type: "string".to_string(),
+                description: "Helion parallelism mode".to_string(),
+                required: true,
+                default_value: Some("automatic".to_string()),
+                valid_values: Some(vec![
+                    "automatic".to_string(),
+                    "manual".to_string(),
+                ]),
+            },
+            ComponentProperty {
+                name: "precision".to_string(),
+                value: "float32".to_string(),
+                property_type: "string".to_string(),
+                description: "Helion precision setting".to_string(),
+                required: true,
+                default_value: Some("float32".to_string()),
+                valid_values: Some(vec![
+                    "float16".to_string(),
+                    "float32".to_string(),
+                    "float64".to_string(),
+                ]),
+            },
+        ],
+        
+        ports: vec![
+            ComponentPort {
+                name: "torch_model".to_string(),
+                direction: PortDirection::Input,
+                port_type: "model".to_string(),
+                description: "PyTorch model input".to_string(),
+                required: true,
+            },
+            ComponentPort {
+                name: "accelerated_output".to_string(),
+                direction: PortDirection::Output,
+                port_type: "data".to_string(),
+                description: "Accelerated execution output".to_string(),
+                required: true,
+            },
+        ],
+        
+        dependencies: vec![],
+        architecture: KernelArchitecture::X86_64,
+        
+        metadata: HashMap::new(),
+    }
+}
+
+/// Create CUDA component library for visualization programming
+pub fn create_cuda_component_library() -> ComponentLibrary {
+    let mut library = ComponentLibrary::new();
+    
+    // Add CUDA Tile component
+    library.add_component(create_cuda_tile_component()).expect("Failed to add CUDA Tile component");
+    
+    // Add CUDA Tensor component
+    library.add_component(create_cuda_tensor_component()).expect("Failed to add CUDA Tensor component");
+    
+    // Add CUDA Performance component
+    library.add_component(create_cuda_performance_component()).expect("Failed to add CUDA Performance component");
+    
+    // Add Triton components
+    library.add_component(create_triton_kernel_component()).expect("Failed to add Triton Kernel component");
+    library.add_component(create_triton_tensor_component()).expect("Failed to add Triton Tensor component");
+    
+    // Add new components
+    library.add_component(create_cutile_component()).expect("Failed to add CuTile component");
+    library.add_component(create_tvm_component()).expect("Failed to add TVM component");
+    library.add_component(create_helion_component()).expect("Failed to add Helion component");
+    
     library
 }
 
@@ -410,4 +815,13 @@ pub fn extend_with_cuda_components(library: &mut ComponentLibrary) {
     
     // Add CUDA Performance component
     library.add_component(create_cuda_performance_component()).expect("Failed to add CUDA Performance component");
+    
+    // Add Triton components
+    library.add_component(create_triton_kernel_component()).expect("Failed to add Triton Kernel component");
+    library.add_component(create_triton_tensor_component()).expect("Failed to add Triton Tensor component");
+    
+    // Add new components
+    library.add_component(create_cutile_component()).expect("Failed to add CuTile component");
+    library.add_component(create_tvm_component()).expect("Failed to add TVM component");
+    library.add_component(create_helion_component()).expect("Failed to add Helion component");
 }

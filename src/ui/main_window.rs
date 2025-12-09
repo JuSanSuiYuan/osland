@@ -13,7 +13,9 @@ use super::unified_resource_panel::UnifiedResourcePanel;
 use super::time_travel_panel::TimeTravelPanel;
 use super::command_line_panel::CommandLinePanel;
 use super::tile_designer_panel::TileDesignerPanel;
+use super::kernel_visualization_panel::KernelVisualizationPanel;
 use crate::dbos_integration::UnifiedResourceManager;
+use crate::kernel_visualization::KernelVisualizationController;
 
 /// Main window state
 pub struct MainWindowState {
@@ -43,6 +45,10 @@ pub struct MainWindow {
     command_line_panel: CommandLinePanel,
     // Add tile designer panel
     tile_designer_panel: TileDesignerPanel,
+    // Add kernel visualization panel
+    kernel_visualization_panel: Option<KernelVisualizationPanel>,
+    // Add kernel visualization controller
+    kernel_visualization_controller: Option<KernelVisualizationController>,
 }
 
 impl MainWindow {
@@ -91,6 +97,10 @@ impl MainWindow {
             command_line_panel: CommandLinePanel::new(command_interface),
             // Add tile designer panel
             tile_designer_panel: tile_designer,
+            // Add kernel visualization panel
+            kernel_visualization_panel: None,
+            // Add kernel visualization controller
+            kernel_visualization_controller: None,
         }
     }
     
@@ -173,6 +183,10 @@ impl MainWindow {
         dashboard_menu.add_item("Global Search", || {
             self.dashboard_integration.show_search_system();
         });
+        dashboard_menu.add_separator();
+        dashboard_menu.add_item("Kernel Structure Visualization", move |cx| {
+            self.show_kernel_visualization(cx);
+        });
         
         // Tools menu
         let tools_menu = self.menu_bar.add_menu("Tools");
@@ -235,6 +249,12 @@ impl MainWindow {
         // Tile operations
         self.toolbar.add_separator();
         self.toolbar.add_button("Tile Designer", || {});
+        
+        // Kernel visualization operations
+        self.toolbar.add_separator();
+        self.toolbar.add_button("Kernel Viz", move |cx| {
+            self.show_kernel_visualization(cx);
+        });
     }
     
     /// Initialize component panel
@@ -375,6 +395,11 @@ impl Widget for MainWindow {
         self.dashboard_integration.paint(cx);
         // Paint tile designer panel
         // self.tile_designer_panel.paint(cx); // TODO: Implement painting for tile designer
+        
+        // Paint kernel visualization panel
+        if let Some(panel) = &mut self.kernel_visualization_panel {
+            panel.paint(cx);
+        }
     }
     
     fn handle_event(&mut self, event: &gpui::Event, cx: &mut EventContext) {
@@ -456,5 +481,34 @@ impl MainWindow {
         let node_canvas = self.canvas_widget.get_node_canvas();
         // TODO: Pass node canvas to build engine
         self.update_status_message("Build completed".to_string());
+    }
+    
+    /// Show kernel visualization panel
+    fn show_kernel_visualization(&mut self, cx: &mut ViewContext) {
+        // Initialize kernel visualization if not already done
+        if self.kernel_visualization_panel.is_none() {
+            // Use default kernel source path (this would typically be from project settings)
+            let kernel_source_path = "d:/linux_kernel";
+            
+            // Create controller
+            self.kernel_visualization_controller = Some(
+                KernelVisualizationController::new(kernel_source_path)
+            );
+            
+            // Create panel
+            self.kernel_visualization_panel = Some(
+                KernelVisualizationPanel::new(kernel_source_path)
+            );
+            
+            // Update status message
+            self.update_status_message("Kernel visualization panel initialized".to_string());
+        }
+        
+        // Show the panel
+        if let Some(panel) = &mut self.kernel_visualization_panel {
+            // This would involve showing the panel in the UI layout
+            // For now, we'll just update the status message
+            self.update_status_message("Kernel visualization panel displayed".to_string());
+        }
     }
 }

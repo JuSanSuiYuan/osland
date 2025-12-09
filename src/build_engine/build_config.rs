@@ -6,6 +6,48 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use crate::core::architecture::KernelArchitecture;
 
+/// Toolchain type (GNU, LLVM/Clang, etc.)
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum ToolchainType {
+    /// GNU Toolchain (gcc, g++, etc.)
+    GNU,
+    /// LLVM/Clang Toolchain (clang, clang++, etc.)
+    LLVM,
+    /// Custom toolchain
+    Custom,
+}
+
+/// Toolchain configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolchainConfig {
+    /// Toolchain type
+    pub toolchain_type: ToolchainType,
+    
+    /// Toolchain path (optional, defaults to PATH)
+    pub toolchain_path: Option<PathBuf>,
+    
+    /// C compiler executable
+    pub c_compiler: String,
+    
+    /// C++ compiler executable
+    pub cpp_compiler: String,
+    
+    /// Assembler executable
+    pub assembler: String,
+    
+    /// Linker executable
+    pub linker: String,
+    
+    /// Strip executable
+    pub strip: String,
+    
+    /// Objcopy executable
+    pub objcopy: String,
+    
+    /// Objdump executable
+    pub objdump: String,
+}
+
 /// Build configuration for OSland
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildConfig {
@@ -23,6 +65,9 @@ pub struct BuildConfig {
     
     /// Build mode (debug or release)
     pub build_mode: BuildMode,
+    
+    /// Toolchain configuration
+    pub toolchain_config: ToolchainConfig,
     
     /// Kernel configuration
     pub kernel_config: KernelConfig,
@@ -227,15 +272,87 @@ pub struct CustomCommand {
     pub continue_on_failure: bool,
 }
 
+impl ToolchainConfig {
+    /// Create a default GNU Toolchain configuration
+    pub fn default_gnu(architecture: &KernelArchitecture) -> Self {
+        // Get architecture-specific prefix
+        let prefix = match architecture {
+            KernelArchitecture::X86 => "",
+            KernelArchitecture::X86_64 => "",
+            KernelArchitecture::ArmV7 => "arm-linux-gnueabi-",
+            KernelArchitecture::ArmV8 => "aarch64-linux-gnu-",
+            KernelArchitecture::RiscV32 => "riscv32-linux-gnu-",
+            KernelArchitecture::RiscV64 => "riscv64-linux-gnu-",
+            _ => "",
+        };
+        
+        Self {
+            toolchain_type: ToolchainType::GNU,
+            toolchain_path: None,
+            c_compiler: format!("{}gcc", prefix),
+            cpp_compiler: format!("{}g++", prefix),
+            assembler: format!("{}as", prefix),
+            linker: format!("{}ld", prefix),
+            strip: format!("{}strip", prefix),
+            objcopy: format!("{}objcopy", prefix),
+            objdump: format!("{}objdump", prefix),
+        }
+    }
+    
+    /// Create a default LLVM/Clang Toolchain configuration
+    pub fn default_llvm(architecture: &KernelArchitecture) -> Self {
+        // Get architecture-specific target triple
+        let target_triple = match architecture {
+            KernelArchitecture::X86 => "i386-pc-linux-gnu",
+            KernelArchitecture::X86_64 => "x86_64-pc-linux-gnu",
+            KernelArchitecture::ArmV7 => "armv7-linux-gnueabihf",
+            KernelArchitecture::ArmV8 => "aarch64-linux-gnu",
+            KernelArchitecture::RiscV32 => "riscv32-unknown-linux-gnu",
+            KernelArchitecture::RiscV64 => "riscv64-unknown-linux-gnu",
+            _ => "x86_64-pc-linux-gnu",
+        };
+        
+        Self {
+            toolchain_type: ToolchainType::LLVM,
+            toolchain_path: None,
+            c_compiler: format!("clang --target={}", target_triple),
+            cpp_compiler: format!("clang++ --target={}", target_triple),
+            assembler: "llvm-as".to_string(),
+            linker: "lld".to_string(),
+            strip: "llvm-strip".to_string(),
+            objcopy: "llvm-objcopy".to_string(),
+            objdump: "llvm-objdump".to_string(),
+        }
+    }
+    
+    /// Create a custom Toolchain configuration
+    pub fn custom(c_compiler: String, cpp_compiler: String, assembler: String, linker: String, strip: String, objcopy: String, objdump: String) -> Self {
+        Self {
+            toolchain_type: ToolchainType::Custom,
+            toolchain_path: None,
+            c_compiler,
+            cpp_compiler,
+            assembler,
+            linker,
+            strip,
+            objcopy,
+            objdump,
+        }
+    }
+}
+
 impl BuildConfig {
     /// Create a default build configuration
     pub fn default(architecture: KernelArchitecture) -> Self {
+        let toolchain_config = ToolchainConfig::default_gnu(&architecture);
+        
         Self {
             project_name: "osland-project".to_string(),
             project_version: "0.1.0".to_string(),
             output_dir: PathBuf::from("build"),
             architecture,
             build_mode: BuildMode::Debug,
+            toolchain_config,
             kernel_config: KernelConfig {
                 kernel_name: "linux".to_string(),
                 kernel_version: "6.1".to_string(),

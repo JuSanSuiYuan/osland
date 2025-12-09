@@ -120,7 +120,7 @@ pub enum KernelArchitecture {
     Monolithic,
     Microkernel,
     Exokernel,
-    BoxKernel,
+    Framekernel,
     Hybrid,
     Custom(String),
 }

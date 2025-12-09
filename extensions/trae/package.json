@@ -1,0 +1,85 @@
+{
+  "name": "osland-trae-extension",
+  "displayName": "OSland Visual Programming",
+  "description": "OSland extension for Trae AI IDE - Visual programming environment for operating system development",
+  "version": "0.1.0",
+  "publisher": "osland-project",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:osland.openVisualEditor"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "osland.openVisualEditor",
+        "title": "OSland: Open Visual Editor"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "osland.openVisualEditor",
+        "key": "ctrl+alt+o",
+        "mac": "cmd+alt+o"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "osland-explorer",
+          "title": "OSland",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "osland-explorer": [
+        {
+          "type": "webview",
+          "id": "osland.canvas",
+          "name": "Canvas",
+          "icon": "media/icon.svg"
+        },
+        {
+          "type": "webview",
+          "id": "osland.components",
+          "name": "Components",
+          "icon": "media/icon.svg"
+        },
+        {
+          "type": "webview",
+          "id": "osland.properties",
+          "name": "Properties",
+          "icon": "media/icon.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.70.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.4",
+    "@vscode/test-electron": "^2.1.5"
+  },
+  "dependencies": {
+    "@types/uuid": "^9.0.0",
+    "uuid": "^9.0.0"
+  },
+  "license": "MulanPSL-2.0"
+}

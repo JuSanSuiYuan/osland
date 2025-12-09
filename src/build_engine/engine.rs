@@ -319,9 +319,51 @@ impl BuildEngine {
         let original_dir = std::env::current_dir()?;
         std::env::set_current_dir(&self.config.kernel_config.source_path)?;
         
-        // Run make defconfig (this is a placeholder)
-        let status = self.run_command("make", &["defconfig"])?;
-        if !status.success() {
+        // Set environment variables for the toolchain
+        let mut env_vars = std::env::vars().collect::<Vec<_>>();
+        
+        // Add toolchain path to PATH if specified
+        if let Some(toolchain_path) = &self.config.toolchain_config.toolchain_path {
+            if let Some(path_var) = env_vars.iter_mut().find(|(key, _)| key == "PATH") {
+                path_var.1 = format!("{};{}", toolchain_path.display(), path_var.1);
+            } else {
+                env_vars.push(("PATH".to_string(), toolchain_path.display().to_string()));
+            }
+        }
+        
+        // Set compiler variables for configuration
+        env_vars.push(("CC".to_string(), self.config.toolchain_config.c_compiler.clone()));
+        env_vars.push(("ARCH".to_string(), self.config.architecture.to_string()));
+        env_vars.push(("CROSS_COMPILE".to_string(), self.config.toolchain_config.get_cross_compile_prefix()));
+        
+        // Run make defconfig with the toolchain configuration
+        let mut cmd = Command::new("make");
+        cmd.args(&["defconfig"]);
+        
+        // Set environment variables
+        for (key, value) in env_vars {
+            cmd.env(key, value);
+        }
+        
+        let output = cmd.output()
+            .map_err(|e| BuildEngineError::CommandExecutionError(format!("make defconfig: {}", e)))?;
+        
+        // Log command output
+        if !output.stdout.is_empty() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                self.log_message(format!("[STDOUT] {}", line));
+            }
+        }
+        
+        if !output.stderr.is_empty() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            for line in stderr.lines() {
+                self.log_message(format!("[STDERR] {}", line));
+            }
+        }
+        
+        if !output.status.success() {
             std::env::set_current_dir(original_dir)?;
             return Err(BuildEngineError::CommandFailed("make defconfig".to_string()));
         }
@@ -349,9 +391,61 @@ impl BuildEngine {
         // Determine number of CPU cores for parallel build
         let num_cores = num_cpus::get().to_string();
         
-        // Run make (this is a placeholder)
-        let status = self.run_command("make", &["-j", &num_cores])?;
-        if !status.success() {
+        // Set environment variables for the toolchain
+        let mut env_vars = std::env::vars().collect::<Vec<_>>();
+        
+        // Add toolchain path to PATH if specified
+        if let Some(toolchain_path) = &self.config.toolchain_config.toolchain_path {
+            if let Some(path_var) = env_vars.iter_mut().find(|(key, _)| key == "PATH") {
+                path_var.1 = format!("{};{}", toolchain_path.display(), path_var.1);
+            } else {
+                env_vars.push(("PATH".to_string(), toolchain_path.display().to_string()));
+            }
+        }
+        
+        // Set compiler variables based on toolchain type
+        env_vars.push(("CC".to_string(), self.config.toolchain_config.c_compiler.clone()));
+        env_vars.push(("CXX".to_string(), self.config.toolchain_config.cpp_compiler.clone()));
+        env_vars.push(("AS".to_string(), self.config.toolchain_config.assembler.clone()));
+        env_vars.push(("LD".to_string(), self.config.toolchain_config.linker.clone()));
+        env_vars.push(("STRIP".to_string(), self.config.toolchain_config.strip.clone()));
+        env_vars.push(("OBJCOPY".to_string(), self.config.toolchain_config.objcopy.clone()));
+        env_vars.push(("OBJDUMP".to_string(), self.config.toolchain_config.objdump.clone()));
+        
+        // Add compiler and linker flags
+        let cflags = self.config.compiler_flags.join(" ");
+        let ldflags = self.config.linker_flags.join(" ");
+        env_vars.push(("CFLAGS".to_string(), cflags));
+        env_vars.push(("LDFLAGS".to_string(), ldflags));
+        
+        // Run make with the toolchain configuration
+        let mut cmd = Command::new("make");
+        cmd.args(&["-j", &num_cores]);
+        
+        // Set environment variables
+        for (key, value) in env_vars {
+            cmd.env(key, value);
+        }
+        
+        let output = cmd.output()
+            .map_err(|e| BuildEngineError::CommandExecutionError(format!("make: {}", e)))?;
+        
+        // Log command output
+        if !output.stdout.is_empty() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                self.log_message(format!("[STDOUT] {}", line));
+            }
+        }
+        
+        if !output.stderr.is_empty() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            for line in stderr.lines() {
+                self.log_message(format!("[STDERR] {}", line));
+            }
+        }
+        
+        if !output.status.success() {
             std::env::set_current_dir(original_dir)?;
             return Err(BuildEngineError::CommandFailed("make".to_string()));
         }
@@ -376,10 +470,64 @@ impl BuildEngine {
         let original_dir = std::env::current_dir()?;
         std::env::set_current_dir(&self.config.kernel_config.source_path)?;
         
-        // Run make modules (this is a placeholder)
+        // Determine number of CPU cores for parallel build
         let num_cores = num_cpus::get().to_string();
-        let status = self.run_command("make", &["-j", &num_cores, "modules"])?;
-        if !status.success() {
+        
+        // Set environment variables for the toolchain
+        let mut env_vars = std::env::vars().collect::<Vec<_>>();
+        
+        // Add toolchain path to PATH if specified
+        if let Some(toolchain_path) = &self.config.toolchain_config.toolchain_path {
+            if let Some(path_var) = env_vars.iter_mut().find(|(key, _)| key == "PATH") {
+                path_var.1 = format!("{};{}", toolchain_path.display(), path_var.1);
+            } else {
+                env_vars.push(("PATH".to_string(), toolchain_path.display().to_string()));
+            }
+        }
+        
+        // Set compiler variables based on toolchain type
+        env_vars.push(("CC".to_string(), self.config.toolchain_config.c_compiler.clone()));
+        env_vars.push(("CXX".to_string(), self.config.toolchain_config.cpp_compiler.clone()));
+        env_vars.push(("AS".to_string(), self.config.toolchain_config.assembler.clone()));
+        env_vars.push(("LD".to_string(), self.config.toolchain_config.linker.clone()));
+        env_vars.push(("STRIP".to_string(), self.config.toolchain_config.strip.clone()));
+        env_vars.push(("OBJCOPY".to_string(), self.config.toolchain_config.objcopy.clone()));
+        env_vars.push(("OBJDUMP".to_string(), self.config.toolchain_config.objdump.clone()));
+        
+        // Add compiler and linker flags
+        let cflags = self.config.compiler_flags.join(" ");
+        let ldflags = self.config.linker_flags.join(" ");
+        env_vars.push(("CFLAGS".to_string(), cflags));
+        env_vars.push(("LDFLAGS".to_string(), ldflags));
+        
+        // Run make modules with the toolchain configuration
+        let mut cmd = Command::new("make");
+        cmd.args(&["-j", &num_cores, "modules"]);
+        
+        // Set environment variables
+        for (key, value) in env_vars {
+            cmd.env(key, value);
+        }
+        
+        let output = cmd.output()
+            .map_err(|e| BuildEngineError::CommandExecutionError(format!("make modules: {}", e)))?;
+        
+        // Log command output
+        if !output.stdout.is_empty() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            for line in stdout.lines() {
+                self.log_message(format!("[STDOUT] {}", line));
+            }
+        }
+        
+        if !output.stderr.is_empty() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            for line in stderr.lines() {
+                self.log_message(format!("[STDERR] {}", line));
+            }
+        }
+        
+        if !output.status.success() {
             std::env::set_current_dir(original_dir)?;
             return Err(BuildEngineError::CommandFailed("make modules".to_string()));
         }

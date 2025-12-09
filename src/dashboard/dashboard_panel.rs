@@ -63,7 +63,7 @@ impl DashboardPanel {
     pub fn new() -> Self {
         Self {
             system_info: SystemInfo {
-                kernel_architecture: KernelArchitecture::BoxKernel,
+                kernel_architecture: KernelArchitecture::Framekernel,
                 hardware_architecture: HardwareArchitecture::X86_64,
                 total_components: 0,
                 active_projects: 0,

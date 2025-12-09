@@ -12,15 +12,15 @@ pub enum KernelArchitecture {
     Hybrid,
     /// Exokernel architecture
     Exokernel,
-    /// Box kernel architecture (OSland's default)
-    BoxKernel,
+    /// Frame kernel architecture (OSland's default)
+    Framekernel,
     /// Partitioned kernel architecture (Parker-like multi-kernel)
     PartitionedKernel,
 }
 
 impl Default for KernelArchitecture {
     fn default() -> Self {
-        KernelArchitecture::BoxKernel
+        KernelArchitecture::Framekernel
     }
 }
 
@@ -31,7 +31,7 @@ impl std::fmt::Display for KernelArchitecture {
             KernelArchitecture::Microkernel => write!(f, "microkernel"),
             KernelArchitecture::Hybrid => write!(f, "hybrid"),
             KernelArchitecture::Exokernel => write!(f, "exokernel"),
-            KernelArchitecture::BoxKernel => write!(f, "box"),
+            KernelArchitecture::Framekernel => write!(f, "frame"),
             KernelArchitecture::PartitionedKernel => write!(f, "partitioned"),
         }
     }
