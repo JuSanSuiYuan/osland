@@ -33,7 +33,7 @@ OSland是一款基于木兰2.0开源许可证的操作系统可视化编程IDE�
 ### 2.3 组件化开发模式
 
 **功能特点**：
-- 丰富的预定义组件库：包含来自iOS、Android、Linux、macOS、Windows、REACTOS、HAIUKOS等主流操作系统的核心组件
+- 丰富的预定义组件库：包含来自iOS、Android、Linux、macOS、Windows、ReactOS、HaikuOS、鸿蒙系统等主流操作系统的核心组件
 - 跨平台组件自由组合：支持将不同操作系统的特性组件（如iOS的UI组件、Linux的文件系统、Windows的网络栈、ReactOS的内核、HaikuOS的图形子系统）自由组合
 - 组件属性可视化配置：通过直观界面调整组件参数
 - 组件间通信机制可视化：清晰展示不同来源组件间的交互关系
